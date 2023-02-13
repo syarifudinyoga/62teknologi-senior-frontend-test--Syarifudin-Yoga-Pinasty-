@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import BusinessList from '@/view/BusinessList.vue'
+import BusinessDetail from '@/view/BusinessDetail.vue'
 //import Login from '../login'
 //import Dashboard from '@/view/dashboard'
 //import ClientList from '@/view/Client/ClientList'
@@ -16,13 +17,18 @@ import BusinessList from '@/view/BusinessList.vue'
 Vue.use(Router)
 
 export default new Router({
-    mode: 'history',
+    //mode: 'history',
     routes: [
         {
             path: '/',
             name: '/',
             component: BusinessList,
-        }
+        },
+        {
+            path: '/business/:id/:alias',
+            name: 'businessDetail',
+            component: BusinessDetail,
+        },
         /*,
         {
             path: '/dashboard',

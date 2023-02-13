@@ -15,7 +15,6 @@
                 <div class="account-wrap">
                   <div class="account-item">
                     <div class="content">
-                      <button @click="logout">Logout</button>
                     </div>
                   </div>
                 </div>
@@ -41,52 +40,70 @@
                   </div>
                   <div class="card-body card-block">
                     <div class="row form-group">
-                      <div class="col col-md-3">
-                        <label for="text-input" class=" form-control-label">Search Terms</label>
+                      <div class="col col-md-1">
+                        <label for="text-input" class=" form-control-label">Location</label>
                       </div>
-                      <div class="col-12 col-md-9">
-                        <input type="text" id="text-input" placeholder="Input Name" v-model="name" class="form-control">      
+                      <div class="col-12 col-md-5">
+                        <input type="text" id="text-input" placeholder="Input location" v-model="location" class="form-control">      
+                      </div>
+                      <div class="col col-md-1">
+                        <label for="text-input" class=" form-control-label">Term</label>
+                      </div>
+                      <div class="col-12 col-md-5">
+                        <input type="text" id="text-input" placeholder="Input Term" v-model="term" class="form-control">      
                       </div>
                     </div>
-                    <button class="btn btn-primary is-small" @click="searchUser">
-                      <i class="fas fa-search"> Search</i>
-                    </button>
+                    <div class="row form-group">
+                      <div class="col col-md-1">
+                        <label for="text-input" class=" form-control-label">Latitude</label>
+                      </div>
+                      <div class="col-12 col-md-5">
+                        <input type="text" id="text-input" placeholder="Input latitude" v-model="latitude" class="form-control">      
+                      </div>
+                      <div class="col col-md-1">
+                        <label for="text-input" class=" form-control-label">Longitude</label>
+                      </div>
+                      <div class="col-12 col-md-5">
+                        <input type="text" id="text-input" placeholder="Input Longitude" v-model="longitude" class="form-control">      
+                      </div>
+                    </div>
+                    <button class="btn btn-primary is-small" @click="searchBusiness">
+                          <i class="fas fa-search"> Search</i>
+                        </button>
                   </div>
                   <div class="card-footer">      
                   </div>
                 </div>
-                <!-- Show All Data User With Vue Good Table -->
+                <!-- Show All Data Business With Vue Good Table -->
                 <div class="card">
                   <div class="card-header">
-                    <!--
-                    <router-link :to="{ name: 'addUser' }" class="btn btn-success float-left"><i class="far fa-plus-square"> Add User</i></router-link>
-                    -->
+                    <strong>List Business</strong> in New York
                   </div>
                   <div class="card-body card-block">
                     <div class="table-responsive m-b-40">
-                      <!--
-                      <vue-good-table :columns="columns" :rows="items" :line-numbers="true"
+                      <vue-good-table :columns="columns" 
+                                      :rows="items" 
+                                      :line-numbers="true"
                                       :pagination-options="{
                                               enabled: true,
-                                              perPage: 5
+                                              perPage: 10
                                       }">
                         <template slot="table-row" slot-scope="props">
                           <span v-if="props.column.field == 'before'"><center>
-                            <a :href="`/#/user/update/${props.row.id}`"><button class="btn btn-info is-small"><i class="far fa-edit"> Edit</i></button></a>&nbsp;
-                            <button class="btn btn-danger is-small" @click="deleteUser(props.row.id)"><i class="far fa-trash-alt"> Delete</i></button></center>
+                            <a :href="`/#/business/${props.row.id}/${props.row.alias}`"><button class="btn btn-info is-small"><i class="far fa-edit"> Detail</i></button></a>&nbsp;
+                            </center>
                           </span>
                           <span v-else>
                             {{props.formattedRow[props.column.field]}}
                           </span>
                         </template>
                       </vue-good-table>
-                      -->
                     </div>
                   </div>
                   <div class="card-footer">          
                   </div>
                 </div>
-                <!-- End Show Data User -->
+                <!-- End Show Data Business -->
               </div>
             </div>
           </div>
@@ -99,42 +116,78 @@
 <script>
 import NavigationBar from '../components/HeaderBar.vue'
 import SideBar from '../components/SideBartemp.vue'
+import axios from 'axios'
+import 'vue-good-table/dist/vue-good-table.css'
+import { VueGoodTable } from 'vue-good-table';
 
 export default {
   name: 'BusinessList',
   components: {
     NavigationBar,
-    SideBar
+    SideBar,
+    VueGoodTable,
   },
   data() {
     return {
       name: "",
-      /*
+      location: "New York",
+      term: "",
+      latitude: "",
+      longitude: "",
       items: [],
       columns: [
-        {
-          label: 'Username',
-          field: 'username',
-          thClass: 'text-center'
-        },
         {
           label: 'Name',
           field: 'name',
           thClass: 'text-center'
         },
         {
-          label:  'Email',
-          field:  'email',
+          label: 'Categories',
+          field: 'categories',
+          thClass: 'text-center'
+        },
+        {
+          label: 'Latitude',
+          field: 'coordinates.latitude',
+          thClass: 'text-center'
+        },
+        {
+          label: 'Longitude',
+          field: 'coordinates.longitude',
+          thClass: 'text-center'
+        },
+        {
+          label: 'City',
+          field: 'location.city',
+          thClass: 'text-center'
+        },
+        {
+          label: 'Country',
+          field: 'location.country',
+          thClass: 'text-center'
+        },
+        {
+          label: 'State',
+          field: 'location.state',
+          thClass: 'text-center'
+        },
+        {
+          label: 'Zip Code',
+          field: 'location.zip_code',
+          thClass: 'text-center'
+        },
+        {
+          label: 'Phone No',
+          field: 'display_phone',
           thClass: 'text-center'
         },
         {
           label: 'Action',
           field: 'before',
           thClass: 'text-center',
-          tdClass: 'text-center',
+          tdClass: 'text-center'
         }
       ],
-      */
     }
   },
   created() {
@@ -143,88 +196,40 @@ export default {
   methods: {
     // Get All Data User
     async getBusiness() {
-      /*
       try {
-        const response = await axios.get(`${config.apiUrl}/users/show`);
-        this.items = response.data;
+        const response = await axios.get(`http://localhost:8080/v3/businesses/search?location=${this.location}&limit=50`);
+        this.items = response.data.businesses;
+        console.log(response.data)
       } catch (err) {
         console.log(err);
       }
-      */
-      console.log("get business");
     },
     // Search User By Name User
     async searchBusiness(){
-        /*
-        const response = await axios.get(`${config.apiUrl}/users/search/${this.name}`);
-        this.items = response.data;
-        console.log(response);
-        */
-       console.log("search business")
-    },/*
-    // Delete User
-    deleteUser(id) {
-      this.$swal({
-          title: 'Are you sure?',
-          text: 'You can\'t revert your action',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Yes Delete it!',
-          cancelButtonText: 'No, Keep it!',
-          showCloseButton: true,
-          showLoaderOnConfirm: true
-        }).then((result) => {
-          if(result.value) {  
-            axios.delete(`${config.apiUrl}/users/delete/${id}`)
-            this.$swal('Deleted', 'Deleted User Data Successfully', 'success')
-            .then(function(){
-                  location.reload();
-                });
-            this.getUser();
-          } else {
-            this.$swal('Cancelled', 'Deleted User Data Is Not Successfully', 'error')
-          }
-        })
-    },
-    // Logout
-    logout(){
-      this.$swal({
-        title: 'Are you sure for logout?',
-        text: 'You can\'t revert your action',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes',
-        cancelButtonText: 'No',
-        showCloseButton: true,
-        showLoaderOnConfirm: true
-      }).then((result) => {
-          if(result.value) {  
-            localStorage.removeItem('token');
-            const auth = localStorage.getItem('token');
-            if(auth==null){
-              this.$router.push("/");
-            }
-          } else {
-            this.$swal('Cancelled', 'You Are Still Login', 'success')
-          }
-        })    
-    },*/
-  },
-  // Render Before Load Page For Check JWT
-  beforeMount () {
-    /*
-    const auth = localStorage.getItem('token')
-      if(auth==null){
-        this.$swal({
-            icon: 'error',
-            title: 'Invalid',
-            text: 'Please Login',
-        })
-        this.$router.push("/");
-    }
-    */
-  }
+      try {
+        var params = ''
+        if(this.location!="" && this.term!="" && this.latitude!="" && this.longitude!=""){
+            params += 'location='+this.location+'&term='+this.term+'&latitude='+this.latitude+'&longitude='+this.longitude
+        } else if(this.location!="" && this.term!=""){
+            params += 'location='+this.location+'&term='+this.term
+        } else if(this.latitude!="" && this.longitude!=""){
+            params += 'latitude='+this.latitude+'&longitude='+this.longitude
+        } else if(this.location!=""){
+            params += 'location='+this.location
+        }
 
+        if(params!=""){
+          const response = await axios.get(`http://localhost:8080/v3/businesses/search?`+params);
+          this.items = response.data.businesses;
+        } else {
+          const response = await axios.get(`http://localhost:8080/v3/businesses/search?location=New York&limit=50`);
+          this.items = response.data.businesses;
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+  }
 }
 </script>
 
